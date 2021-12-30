@@ -48,9 +48,14 @@ class FaceSwapModel:
     def __del__(self):
         cv2.destroyAllWindows()
     
-    def ProcessOneFrame(self, rgb_img_uint8):
+    def ProcessOneFrame(self, rgb_img_uint8, left_up_x_in_256, left_up_y_in_256, right_down_x_in_256, right_down_y_in_256):
         self.frame_num = self.frame_num+1
-        frame = cv2.resize(rgb_img_uint8, dsize=(256, 256))
+
+        frame = np.zeros(shape=(256, 256, 3), dtype=np.uint8)
+        tmp = cv2.resize(rgb_img_uint8, dsize=(right_down_x_in_256-left_up_x_in_256, right_down_y_in_256-left_up_y_in_256))
+        frame[left_up_y_in_256:right_down_y_in_256, left_up_x_in_256:right_down_x_in_256, :] = tmp
+        cv2.imshow("tmp", tmp)
+        cv2.imshow("kkk", frame)
 
         img_tensor = transform(frame)
         img_tensor = torch.reshape(img_tensor, (1, 3, 256, 256))
@@ -64,14 +69,15 @@ class FaceSwapModel:
         content, _ = self.encoder(img_tensor)
         out, alpha = self.decoder(content, self.style)
         elapse_time = time.time() - start_time 
-        print("time_cost:", elapse_time)
+        # print("time_cost:", elapse_time)
 
         # out = out.detach().numpy()
         # out = np.reshape(out, (3, 256, 256))
         # out = out.transpose((1,2,0))
         out = torch.reshape(out, (3, 256, 256))
         out = tensor2numpy(denorm(out))
-        out = out*255
+        out = np.clip(out, 0, 1)
+        out = out*255.
         out = out.astype(np.uint8)
 
 
@@ -90,10 +96,11 @@ class FaceSwapModel:
 
         # frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         out = alpha2*out + (1.-alpha2)*frame
-        out = out.astype(np.uint8)
+        # out = out.astype(np.uint8)
 
-        out = cv2.resize(out, dsize=(np.shape(rgb_img_uint8)[1], np.shape(rgb_img_uint8)[0]))
+        temp = out[left_up_y_in_256:right_down_y_in_256, left_up_x_in_256:right_down_x_in_256, :]
+        out = cv2.resize(temp, dsize=(np.shape(rgb_img_uint8)[1], np.shape(rgb_img_uint8)[0]))
 
-        # cv2.imshow("out", out)
+        
         return out
         
