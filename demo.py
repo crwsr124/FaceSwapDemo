@@ -164,6 +164,7 @@ class MainWindow(QMainWindow):
         self.write_video = False
         self.video_writer_created = False
 
+
     def __del__(self):
         if self.video_file_path is not None and self.write_video:
             self.videoWriter.release()
@@ -235,6 +236,8 @@ class MainWindow(QMainWindow):
 
         success, camera_frame=self.cap.read()
         if success and camera_frame is not None:
+            new_width = int(np.shape(camera_frame)[1]/3.)
+            camera_frame = camera_frame[:, new_width:new_width*2,:]
             zoom = 2
             if np.shape(camera_frame)[1] < 540 or np.shape(camera_frame)[0] < 540:
                 zoom = 1
