@@ -26,8 +26,8 @@ transform = transforms.Compose([
 class FaceSwapModel:
     def __init__(self, params = None):
         self.model_path = 'model/'
-        self.encoder = torch.load('model/encoder.pkl',map_location=torch.device('cpu'))
-        self.decoder = torch.load('model/decoder.pkl',map_location=torch.device('cpu'))
+        self.encoder = torch.load('model/encoderv1.pkl',map_location=torch.device('cpu'))
+        self.decoder = torch.load('model/decoderv1.pkl',map_location=torch.device('cpu'))
         self.decoder.eval()
         self.encoder.eval()
         self.style = torch.randn(1, 8)

@@ -161,7 +161,7 @@ class MainWindow(QMainWindow):
         # self.face_detector2 = FaceDetector()
         self.face_detector = FaceDetectorModel()
 
-        self.write_video = False
+        self.write_video = True
         self.video_writer_created = False
 
 
@@ -237,7 +237,7 @@ class MainWindow(QMainWindow):
         success, camera_frame=self.cap.read()
         if success and camera_frame is not None:
             new_width = int(np.shape(camera_frame)[1]/3.)
-            camera_frame = camera_frame[:, new_width:new_width*2,:]
+            camera_frame = camera_frame[:, new_width+5:new_width*2-5,:]
             zoom = 2
             if np.shape(camera_frame)[1] < 540 or np.shape(camera_frame)[0] < 540:
                 zoom = 1
